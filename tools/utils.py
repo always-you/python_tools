@@ -59,7 +59,6 @@ def extract_media(content):
             url=unquote(url),
             width=int(width),
             height=int(height),
-            storage_type=1,
         )
         media['photos'].append(photo)
 
@@ -91,7 +90,6 @@ def extract_media(content):
             duration=int(duration),
             definition=definition,
             cover_photo=cover_photo,
-            storage_type=2,
         )
         media['videos'].append(video)
 

@@ -5,21 +5,21 @@ from urllib.parse import unquote
 from html import unescape
 
 
-def standard_json_str(s):
+def standard_json_str(json_str):
     """
-    去除json字符串中的杂质
-    :param s:
+    去除json字符串首尾杂质
+    :param json_str:
     :return:
     """
-    if s.startswith('{'):
-        if s.endswith('}'):
-            result = s
-        elif '}' in s:
-            result = s[: s.rfind('}') + 1]
+    if json_str.startswith('{'):
+        if json_str.endswith('}'):
+            result = json_str
+        elif '}' in json_str:
+            result = json_str[: json_str.rfind('}') + 1]
         else:
             return False
     else:
-        result = s[s.find('{'): s.rfind('}') + 1]
+        result = json_str[json_str.find('{'): json_str.rfind('}') + 1]
     while True:
         last_open = result.rfind('{')
         if last_open > result.rfind('}', 0, -1) and last_open > 0:
@@ -29,16 +29,20 @@ def standard_json_str(s):
     return result
 
 
-def extract_media(content):
-    # 从content中提取出图片和视频
+def extract_media(html_str):
+    """
+    提取html字符串中的媒体（图片和视频）信息
+    :param content:
+    :return:
+    """
     media = dict(
         photos=[],
         videos=[]
     )
-    if not content or not isinstance(content, str):
+    if not html_str or not isinstance(html_str, str):
         return media
 
-    content = unescape(content)
+    content = unescape(html_str)
     img_tags = re.findall(r'<img .+?>', str(content), re.IGNORECASE)
     video_tags = re.findall(r'<video .+?>', str(content), re.IGNORECASE)
 
@@ -96,10 +100,11 @@ def extract_media(content):
     return media
 
 
-def process_time_str(time_str):
+def process_time_str(time_str, to_timestamp=False):
     """
-    根据发布时间获得时间戳
-    :param time_str:发布时间
+    将常见的时间格式转化为格林威治时间
+    :param time_str:
+    :param to_timestamp:
     :return:
     """
     year = time.strftime('%Y', time.localtime(time.time()))
@@ -132,9 +137,14 @@ def process_time_str(time_str):
         timestamp = int(time.mktime(time.strptime(time_str, '%Y-%m-%d %H:%M')))
     else:
         timestamp = None
-    return time_str
+
+    if to_timestamp:
+        return timestamp
+    else:
+        gmt = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp))
+        return gmt
 
 
 if __name__ == '__main__':
-    s = '10-11 12:14:22'
+    s = '1602389662'
     print(process_time_str(s))
